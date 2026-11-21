@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PiWork - Life is easy with Pi</title>
+<style>
+body{font-family:Arial;background:#f5f5f5;padding:12px;margin:0}
+h1{text-align:center;color:#6a1b9a;margin:5px}.center{text-align:center;font-size:13px;color:#666}
+.card{background:white;padding:14px;border-radius:16px;margin:12px 0;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+select,input,textarea{width:100%;padding:11px;margin:7px 0;border-radius:10px;border:1px solid #ccc;font-size:15px;box-sizing:border-box}
+button{width:100%;padding:12px;border:none;border-radius:10px;font-size:15px;cursor:pointer;margin-top:7px}
+.btn-pi{background:#6a1b9a;color:white}.btn-robo{background:#111;color:#00e5ff}.btn-call{background:#25D366;color:white}.btn-chat{background:#ff9800;color:white}.btn-add{background:#ffcc00;color:#000}.btn-back{background:#eee}.btn-edit{background:#2196F3;color:white}.btn-del{background:#f44336;color:white}.btn-lock{background:#ff9800;color:white}
+.worker-img{width:100%;height:180px;object-fit:cover;border-radius:12px}
+.profile-img{width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid #6a1b9a;display:block;margin:auto}
+.badge{display:inline-block;padding:4px 8px;border-radius:20px;font-size:12px;background:#eee}
+.price{font-size:18px;font-weight:bold}.small{font-size:13px;color:#777}
+.pay-box{display:none;background:#fff3cd;border:2px dashed #ffcc00;padding:14px;border-radius:16px;margin:12px 0}
+.profile-header{text-align:center}.link-box{background:#f3e8ff;padding:10px;border-radius:10px;word-break:break-all;font-size:13px}
+.lock-box{background:#fff3e0;border:2px solid #ff9800;padding:14px;border-radius:16px;margin:12px 0;text-align:center}
+</style>
+</head>
+<body>
+
+<div id="homeView">
+<h1>🔧 PiWork</h1>
+<p class="center"><b>Life is easy with Pi</b><br>Pi for Humans 💜 | RoboPay for OpenMind Robots 🤖<br>🔒 Only owner can edit his page with Pi Login</p>
+
+<div class="card">
+<button class="btn-add" onclick="document.getElementById('register').style.display='block'">➕ سجل كعامل - عندك صفحة خاصة + كود سري</button>
+<div id="register" style="display:none">
+<input id="rName" placeholder="Your Full Name">
+<select id="rCountry"><option value="MA">Morocco</option><option value="NG">Nigeria</option><option value="KR">Korea</option><option value="VN">Vietnam</option><option value="US">USA</option></select>
+<input id="rCity" placeholder="Your City - e.g. Tangier">
+<select id="rJob"><option>Plumber</option><option>Electrician</option><option>Carpenter</option><option>Painter</option><option>Mechanic</option></select>
+<input id="rPrice" type="number" placeholder="Price in $">
+<input id="rPhone" placeholder="WhatsApp / Phone">
+<textarea id="rBio" placeholder="About you..."></textarea>
+<input id="rPin" type="password" placeholder="🔒 Create your Secret PIN - e.g. 1234 - Only you know it">
+<input id="rPhoto" type="file" accept="image/*">
+<button class="btn-pi" onclick="addWorker()">✅ Create My Page + Pi Login</button>
+<p class="small">⚠️ احفظ الكود السري ديالك، بيه غادي تعدل و تمسح صفحتك</p>
+</div>
+</div>
+
+<div class="card"><h3>🔍 Find a Worker</h3>
+<select id="country" onchange="updateCities(); render()"><option value="MA">🇲🇦 Morocco</option><option value="NG">🇳🇬 Nigeria</option><option value="KR">🇰🇷 Korea</option><option value="VN">🇻🇳 Vietnam</option><option value="US">🇺🇸 USA</option></select>
+<select id="city" onchange="render()"></select>
+<select id="job" onchange="render()"><option value="">All Jobs</option><option>Plumber</option><option>Electrician</option><option>Carpenter</option><option>Painter</option><option>Mechanic</option></select>
+<input type="text" id="search" placeholder="Search by name..." oninput="render()">
+</div>
+
+<div class="card"><label>💱 Pi Price Today:</label><input type="number" id="piRate" value="0.65" step="0.01" oninput="render()"><p class="small">1 Pi = <span id="rateShow">0.65</span> $</p></div>
+
+<div id="paySection" class="pay-box"><h3>💜 Pay with Pi</h3><p id="payText"></p><p>حول <span id="payPi"></span> Pi لهاد المحفظة:</p><input value="G-YASSINE-PIWORK-ABOUJAAD" readonly onclick="this.select()"><button class="btn-call">📱 Send Screenshot on WhatsApp</button><button class="btn-pi" onclick="alert('Payment Confirmed ✅')">✅ I Paid - Confirm</button><button onclick="document.getElementById('paySection').style.display='none'">Close</button></div>
+
+<h2>🧑 Workers - Click to see his page</h2><div id="workers"></div>
+<h2>🤖 OpenMind Robots</h2><div class="card"><img class="worker-img" src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&q=80"><h3>Robo-1 - OpenMind Robot ⭐ 5.0</h3><button class="btn-robo">🤖 Pay with RoboPay</button></div>
+</div>
+
+<div id="profileView" style="display:none">
+<button class="btn-back" onclick="showHome()">⬅️ Back</button>
+<div class="card" id="profileContent"></div>
+<div class="card" id="loginBox" style="display:none">
+<div class="lock-box"><h3>🔒 Pi Login - Only Owner</h3><p>دخل الكود السري ديالك باش تعدل صفحتك</p><input id="loginPin" type="password" placeholder="Enter your Secret PIN"><button class="btn-pi" onclick="checkLogin()">🔓 Login with Pi</button></div>
+</div>
+<div class="card" id="editBox" style="display:none">
+<h3>✏️ عدل صفحتي</h3>
+<input id="eName" placeholder="Name"><input id="eCity" placeholder="City"><input id="ePrice" type="number" placeholder="Price $"><input id="ePhone" placeholder="Phone"><textarea id="eBio" placeholder="Bio"></textarea>
+<input id="eNewPin" type="password" placeholder="New PIN (optional - leave empty to keep old)">
+<button class="btn-edit" onclick="saveEdit()">💾 Save Changes</button>
+<button class="btn-del" onclick="deleteWorker()">🗑️ حذف صفحتي</button>
+<button onclick="logoutOwner()">🔒 Logout</button>
+</div>
+</div>
+
+<script>
+let cities={MA:["Tangier","Casablanca","Fez","Rabat"],NG:["Lagos","Abuja"],KR:["Seoul","Busan"],VN:["Hanoi","Ho Chi Minh"],US:["New York","Los Angeles"]};
+let workersData = JSON.parse(localStorage.getItem("piwork_workers")||"null") || [
+{id:1,country:"MA",city:"Tangier",job:"Plumber",name:"Ahmed - Plumber - Tangier",rating:"5.0",usd:30,phone:"0612345678",bio:"10 years experience in Tangier.",pin:"1234",img:"https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&q=80",views:1254,orders:89},
+{id:2,country:"MA",city:"Casablanca",job:"Carpenter",name:"Youssef - Carpenter - Casablanca",rating:"4.9",usd:25,phone:"0661122334",bio:"Expert carpenter.",pin:"1234",img:"https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&q=80",views:980,orders:64},
+];
+let currentId=null; let isOwner=false;
+function save(){localStorage.setItem("piwork_workers",JSON.stringify(workersData))}
+function getRate(){return parseFloat(document.getElementById("piRate").value)||0.65}
+function usdToPi(usd){return Math.round(usd/getRate())}
+function updateCities(){let c=document.getElementById("country").value;let sel=document.getElementById("city");sel.innerHTML="";cities[c].forEach(city=>{sel.innerHTML+=`<option value="${city}">${city}</option>`})}
+function addWorker(){
+let name=document.getElementById("rName").value;let city=document.getElementById("rCity").value;let job=document.getElementById("rJob").value;let usd=parseFloat(document.getElementById("rPrice").value)||30;let country=document.getElementById("rCountry").value;let bio=document.getElementById("rBio").value||"Professional "+job+" in "+city;let phone=document.getElementById("rPhone").value;let pin=document.getElementById("rPin").value;
+if(!name||!city){alert("Fill name and city");return}
+if(!pin){alert("⚠️ Create your Secret PIN!");return}
+let newId=Date.now();let img="https://i.pravatar.cc/400?u="+newId;let file=document.getElementById("rPhoto").files[0];if(file){img=URL.createObjectURL(file)}
+workersData.unshift({id:newId,country,city,job,name:name+" - "+job+" - "+city,rating:"5.0",usd,phone,bio,pin,img,views:0,orders:0});save();alert("✅ Page created! Your PIN is: "+pin+" - Keep it!");document.getElementById('register').style.display='none';render();openProfile(newId);
+}
+function showHome(){document.getElementById("homeView").style.display="block";document.getElementById("profileView").style.display="none";window.location.hash="";}
+function openProfile(id){
+let w=workersData.find(x=>x.id==id);if(!w)return;currentId=id;isOwner=false;w.views=(w.views||0)+1;save();let pi=usdToPi(w.usd);let myLink=window.location.origin+window.location.pathname+"#worker-"+w.id;
+document.getElementById("homeView").style.display="none";document.getElementById("profileView").style.display="block";document.getElementById("editBox").style.display="none";document.getElementById("loginBox").style.display="none";
+document.getElementById("profileContent").innerHTML=`
+<div class="profile-header"><img class="profile-img" src="${w.img}"><h2>${w.name}</h2><p>⭐ ${w.rating} | 👁️ ${w.views} views | ✅ ${w.orders} orders</p><span class="badge">${w.job}</span> <span class="badge">${w.city}</span></div>
+<h3>About Me</h3><p>${w.bio}</p><h3>Price</h3><p class="price">${w.usd}$ = ${pi} Pi</p>
+<h3>⭐ Reviews</h3><p>⭐⭐⭐⭐⭐ Excellent! - Mohamed</p>
+<textarea placeholder="Write review..."></textarea><button class="btn-chat">⭐ Add Review</button>
+<h3>🔗 My Link</h3><div class="link-box">${myLink}</div><button class="btn-call" onclick="navigator.clipboard.writeText('${myLink}');alert('Link copied!')">📋 Copy My Link</button>
+<h3>Contact</h3><input type="text" placeholder="Write to ${w.name}..."><button class="btn-chat">💬 Send Message</button><input type="file" accept="image/*" onchange="alert('Photo sent ✅')"><button class="btn-call" onclick="alert('Calling ${w.phone}')">📞 Call ${w.name}</button><button class="btn-pi" onclick="openPay('${w.name}',${pi},${w.usd})">💜 Pay with Pi - ${pi} Pi</button>
+<hr><h3>⚙️ Owner Area - 🔒 Protected</h3><button class="btn-lock" onclick="document.getElementById('loginBox').style.display='block';window.scrollTo(0,document.body.scrollHeight)">🔒 Login as Owner - Pi Login</button><p class="small">غير مول الصفحة اللي عندو الكود السري يقدر يدخل هنا</p>
+`;
+window.location.hash="worker-"+w.id;window.scrollTo(0,0);
+}
+function checkLogin(){
+let w=workersData.find(x=>x.id==currentId);let pin=document.getElementById("loginPin").value;
+if(pin==w.pin){isOwner=true;document.getElementById("loginBox").style.display="none";document.getElementById("editBox").style.display="block";document.getElementById("eName").value=w.name;document.getElementById("eCity").value=w.city;document.getElementById("ePrice").value=w.usd;document.getElementById("ePhone").value=w.phone;document.getElementById("eBio").value=w.bio;alert("Welcome Owner ✅ You can edit now");}else{alert("❌ Wrong PIN! Only owner can edit");}
+document.getElementById("loginPin").value="";
+}
+function logoutOwner(){isOwner=false;document.getElementById("editBox").style.display="none";alert("Logged out 🔒")}
+function saveEdit(){
+if(!isOwner){alert("Login first!");return}
+let w=workersData.find(x=>x.id==currentId);w.name=document.getElementById("eName").value;w.city=document.getElementById("eCity").value;w.usd=parseFloat(document.getElementById("ePrice").value)||w.usd;w.phone=document.getElementById("ePhone").value;w.bio=document.getElementById("eBio").value;let newPin=document.getElementById("eNewPin").value;if(newPin){w.pin=newPin;alert("PIN changed ✅")}save();alert("Saved ✅");openProfile(currentId);render();
+}
+function deleteWorker(){
+if(!isOwner){alert("Login first!");return}
+if(!confirm("Delete your page?"))return;
+workersData=workersData.filter(x=>x.id!=currentId);save();alert("Deleted 🗑️");showHome();render();
+}
+function openPay(name,pi,usd){document.getElementById('paySection').style.display='block';document.getElementById('payText').innerText="Pay "+name+" - "+usd+"$ = "+pi+" Pi";document.getElementById('payPi').innerText=pi;document.getElementById("homeView").style.display="block";document.getElementById("profileView").style.display="none";window.scrollTo(0,0)}
+function render(){
+let country=document.getElementById("country").value;let city=document.getElementById("city").value;let job=document.getElementById("job").value;let search=document.getElementById("search").value.toLowerCase();document.getElementById("rateShow").innerText=getRate();let box=document.getElementById("workers");box.innerHTML="";let filtered=workersData.filter(w=>w.country==country&&w.city==city&&(job==""||w.job==job)&&w.name.toLowerCase().includes(search));if(filtered.length==0){box.innerHTML=`<div class="card">No worker here. Be first!</div>`;return}
+filtered.forEach(w=>{let pi=usdToPi(w.usd);box.innerHTML+=`<div class="card" onclick="openProfile(${w.id})" style="cursor:pointer"><img class="worker-img" src="${w.img}"><h3>${w.name} ⭐ ${w.rating}</h3><p>${w.bio.substring(0,80)}...</p><p class="price">${w.usd}$ = ${pi} Pi</p><p class="small">👁️ ${w.views||0} | ✅ ${w.orders||0} | 🔒 Protected Page</p><button class="btn-pi">👀 See Page</button></div>`});
+}
+updateCities();render();
+if(window.location.hash.includes("worker-")){let id=parseInt(window.location.hash.replace("#worker-",""));setTimeout(()=>openProfile(id),500)}
+</script>
+</body>
+</html>
